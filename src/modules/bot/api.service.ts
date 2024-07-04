@@ -2,8 +2,6 @@ import { Inject, Injectable } from "@nestjs/common";
 import axios from "axios";
 import * as dayJs from "dayjs";
 
-const predictions = {};
-
 export interface FixtureInterface {
   fixture: {
     id: string;
@@ -46,6 +44,8 @@ export interface FixtureInterface {
   };
 }
 
+const pre = {};
+
 @Injectable()
 export class ApiService {
   constructor(
@@ -53,37 +53,43 @@ export class ApiService {
     private readonly headers: any,
   ) {}
 
-  async getMatchPrediction(matchId: string) {
-    const config = {
-      method: "get",
-      url: `https://api-football-v1.p.rapidapi.com/v3/predictions?fixture=${matchId}`,
-      headers: this.headers,
-    };
+  async getMatchPrediction(matchIdList: string | string[]) {
+    matchIdList = Array.isArray(matchIdList) ? matchIdList : [matchIdList];
 
-    if (predictions[matchId]) {
-      return predictions[matchId];
+    const predictions = [];
+
+    for (const matchId of matchIdList) {
+      const config = {
+        method: "get",
+        url: `https://api-football-v1.p.rapidapi.com/v3/predictions?fixture=${matchId}`,
+        headers: this.headers,
+      };
+
+      if (pre[matchId]) {
+        predictions.push(pre[matchId]);
+        continue;
+      }
+
+      const { data } = await axios.request(config);
+
+      pre[matchId] = data.response[0].predictions;
+
+      predictions.push(data.response[0].predictions);
     }
 
-    const response = await axios.request(config);
-    predictions[matchId] = response.data.response[0];
-
-    return response.data.response[0];
+    return predictions;
   }
 
   async getTodayMatches(leagueListId: string | string[]) {
-    const date = dayJs().format("YYYY-MM-DD");
+    /* const date = dayJs(new Date().setDate(new Date().getDate() - 1)).format(
+      "YYYY-MM-DD",
+    );*/
 
-    console.log("date", date);
+    const date = dayJs().format("YYYY-MM-DD");
 
     let fixtures: FixtureInterface[] = [];
 
     if (!Array.isArray(leagueListId)) leagueListId = [leagueListId];
-
-    /* const config = {
-      method: "get",
-      url: `https://api-football-v1.p.rapidapi.com/v3/fixtures?date=${date}&league=${leagueId}&season=2024&timezone=America%2FBogota`,
-      headers,
-    };*/
 
     for (const leagueId of leagueListId) {
       const { data } = await axios.get(
