@@ -14,6 +14,6 @@ export const validationSchema = Joi.object({
 
   //Firestore
   FIRESTORE_PROJECT_ID: Joi.string().required(),
-  FIRESTORE_PRIVATE_KEY: Joi.string().required(),
+  FIRESTORE_PRIVATE_KEY: Joi.string(),
   FIRESTORE_CLIENT_EMAIL: Joi.string().required(),
 });
