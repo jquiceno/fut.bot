@@ -10,18 +10,21 @@ import { GlobalConfigType, configuration } from '../../confing/';
 import { ApiService } from './api.service';
 import { MatchPredictionsWizard } from './wizard';
 import { ApiFootBallModule } from '../api-football';
-import { FirestoreModule } from '../firestore/firestore.module';
+import { FirestoreModule } from '../firestore';
 
 @Module({
   imports: [
     FirestoreModule.registerAsync({
-      useFactory: (config: GlobalConfigType) => ({
-        serviceAccount: {
-          projectId: config.FIRESTORE_PROJECT_ID,
-          privateKey: config.FIRESTORE_PRIVATE_KEY,
-          clientEmail: config.FIRESTORE_CLIENT_EMAIL,
-        },
-      }),
+      useFactory: (config: GlobalConfigType) => {
+        console.log('config', config);
+        return {
+          serviceAccount: {
+            projectId: config.FIRESTORE_PROJECT_ID,
+            privateKey: config.FIRESTORE_PRIVATE_KEY,
+            clientEmail: config.FIRESTORE_CLIENT_EMAIL,
+          },
+        };
+      },
       inject: [configuration.KEY],
     }),
     ApiFootBallModule.registerAsync({
