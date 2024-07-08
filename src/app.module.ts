@@ -1,8 +1,8 @@
-import { ConsoleLogger, Module } from "@nestjs/common";
-import { BotModule } from "./modules/bot";
-import { ConfigModule } from "@nestjs/config";
-import { validationSchema, configuration } from "./confing";
-import { AppController } from "./app.controller";
+import { ConsoleLogger, Module } from '@nestjs/common';
+import { BotModule } from './modules/bot';
+import { ConfigModule } from '@nestjs/config';
+import { validationSchema, configuration } from './confing';
+import { AppController } from './app.controller';
 
 export class LogService extends ConsoleLogger {}
 

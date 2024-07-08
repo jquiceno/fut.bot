@@ -1,19 +1,19 @@
-import { Action, Ctx, Wizard, WizardStep } from "nestjs-telegraf";
-import { WizardContext } from "telegraf/typings/scenes";
-import { ApiService } from "../api.service";
-import { getCountryFlag } from "../utils";
+import { Action, Ctx, Wizard, WizardStep, Sender } from 'nestjs-telegraf';
+import { WizardContext } from 'telegraf/typings/scenes';
+import { ApiService } from '../api.service';
+import { getCountryFlag } from '../utils';
 
-@Wizard("MATCH_PREDICTIONS_SCENE_ID")
+@Wizard('MATCH_PREDICTIONS_SCENE_ID')
 export class MatchPredictionsWizard {
   constructor(private readonly apiService: ApiService) {}
 
   @WizardStep(1)
-  async onCallPredictions(@Ctx() ctx: WizardContext): Promise<string> {
-    console.log("Enter to scene");
-
+  async onCallPredictions(@Ctx() ctx: WizardContext, @Sender() sender: any): Promise<string> {
     const { telegram, chat } = ctx;
 
-    const matches = await this.apiService.getTodayMatches(["4", "9"]);
+    console.log('sender', sender);
+
+    const matches = await this.apiService.getTodayMatches(['4', '9']);
 
     const matchesButtons = [];
 
@@ -30,14 +30,14 @@ export class MatchPredictionsWizard {
       ]);
     }
 
-    await telegram.sendMessage(chat.id, "Selecciona el partido: ⚽️", {
+    await telegram.sendMessage(chat.id, 'Selecciona el partido: ⚽️', {
       reply_markup: {
         inline_keyboard: [...matchesButtons],
       },
     });
 
-    ctx.wizard.state["matchesSelected"] = {};
-    ctx.wizard.state["buttons"] = matchesButtons;
+    ctx.wizard.state['matchesSelected'] = {};
+    ctx.wizard.state['buttons'] = matchesButtons;
 
     await ctx.wizard.next();
     return null;
@@ -46,16 +46,14 @@ export class MatchPredictionsWizard {
   @WizardStep(2)
   @Action(/^match:/)
   async onMatchSelected(@Ctx() ctx: WizardContext): Promise<string> {
-    console.log("Enter to step 1");
-
     const update = ctx.update as any;
 
     const { callback_query } = update;
 
     const query = callback_query.data;
 
-    const selectedButtons = ctx.wizard.state["matchesSelected"];
-    const buttons = ctx.wizard.state["buttons"];
+    const selectedButtons = ctx.wizard.state['matchesSelected'];
+    const buttons = ctx.wizard.state['buttons'];
 
     selectedButtons[query] = !selectedButtons[query];
 
@@ -78,7 +76,7 @@ export class MatchPredictionsWizard {
     });
 
     if (isSelected) {
-      newB.push([{ text: "Enviar", callback_data: "predictions" }]);
+      newB.push([{ text: 'Enviar', callback_data: 'predictions' }]);
     }
 
     await ctx.editMessageReplyMarkup({
@@ -88,35 +86,28 @@ export class MatchPredictionsWizard {
     return null;
   }
 
-  @Action("predictions")
-  async createPredictions(
-    @Ctx() ctx: WizardContext & { wizard: { state: { name: string } } },
-  ) {
-    await ctx.deleteMessage();
-    console.log("Enter to step 3");
-
-    const matchIdList = Object.keys(ctx.wizard.state["matchesSelected"]).map(
-      (key: string) => key.split(":")[1],
-    );
+  @Action('predictions')
+  async createPredictions(@Ctx() ctx: WizardContext & { wizard: { state: { name: string } } }) {
+    const matchIdList = Object.keys(ctx.wizard.state['matchesSelected']).map((key: string) => key.split(':')[1]);
 
     const predictions = await this.apiService.getMatchPrediction(matchIdList);
 
+    await ctx.deleteMessage();
+
     for (const prediction of predictions) {
-      let predictionText = "Gana";
+      let predictionText = 'Gana';
 
       if (prediction.win_or_draw) {
-        predictionText = "Gana o empata";
+        predictionText = 'Gana o empata';
       }
 
-      const messageLines = [
-        `${predictionText} ${prediction.winner.name} ${getCountryFlag(prediction.winner.name)}`,
-      ];
+      const messageLines = [`${predictionText} ${prediction.winner.name} ${getCountryFlag(prediction.winner.name)}`];
 
       if (prediction.under_over) {
         messageLines.push(`Hay ${prediction.under_over} goles ⚽️`);
       }
 
-      await ctx.reply(messageLines.join("\n"));
+      await ctx.reply(messageLines.join('\n'));
     }
 
     await ctx.scene.leave();

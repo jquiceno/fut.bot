@@ -1,6 +1,7 @@
-import { Inject, Injectable } from "@nestjs/common";
-import axios from "axios";
-import * as dayJs from "dayjs";
+import { Injectable } from '@nestjs/common';
+import * as dayJs from 'dayjs';
+import { Firestore, Timestamp } from 'firebase-admin/firestore';
+import { FixtureService, PredictionsService } from '../api-football';
 
 export interface FixtureInterface {
   fixture: {
@@ -44,70 +45,102 @@ export interface FixtureInterface {
   };
 }
 
-const pre = {};
-
 @Injectable()
 export class ApiService {
   constructor(
-    @Inject("API_HEADERS")
-    private readonly headers: any,
+    private readonly predictions: PredictionsService,
+    private readonly fixtures: FixtureService,
+    private readonly firestore: Firestore,
   ) {}
 
   async getMatchPrediction(matchIdList: string | string[]) {
+    const collection = this.firestore.collection('predictions');
+
     matchIdList = Array.isArray(matchIdList) ? matchIdList : [matchIdList];
 
     const predictions = [];
 
     for (const matchId of matchIdList) {
-      const config = {
-        method: "get",
-        url: `https://api-football-v1.p.rapidapi.com/v3/predictions?fixture=${matchId}`,
-        headers: this.headers,
-      };
+      const docRef = collection.doc(matchId);
+      const match = await docRef.get();
 
-      if (pre[matchId]) {
-        predictions.push(pre[matchId]);
+      if (match.exists) {
+        predictions.push(match.data().predictions);
         continue;
       }
 
-      const { data } = await axios.request(config);
+      const { response } = await this.predictions.getByFixtureId(matchId);
 
-      pre[matchId] = data.response[0].predictions;
+      await docRef.set({
+        matchId,
+        ...response[0],
+        teams: {}, // data.response[0].teams,
+      });
 
-      predictions.push(data.response[0].predictions);
+      predictions.push(response[0].predictions);
     }
 
     return predictions;
   }
 
   async getTodayMatches(leagueListId: string | string[]) {
-    /* const date = dayJs(new Date().setDate(new Date().getDate() - 1)).format(
-      "YYYY-MM-DD",
-    );*/
+    try {
+      const collection = this.firestore.collection('fixtures');
+      // const date = dayJs(new Date().setDate(new Date().getDate() - 2)).format('YYYY-MM-DD');
 
-    const date = dayJs().format("YYYY-MM-DD");
+      const date = dayJs().format('YYYY-MM-DD');
 
-    let fixtures: FixtureInterface[] = [];
+      let fixtures: any[] = [];
 
-    if (!Array.isArray(leagueListId)) leagueListId = [leagueListId];
+      const snapshot = await collection
+        .where('fixture.date', '==', date)
+        .where('league.id', '==', Number(leagueListId))
+        .get();
 
-    for (const leagueId of leagueListId) {
-      const { data } = await axios.get(
-        "https://api-football-v1.p.rapidapi.com/v3/fixtures",
-        {
-          params: {
-            date,
-            league: leagueId,
-            season: "2024",
-            timezone: "America/Bogota",
-          },
-          headers: this.headers,
-        },
-      );
+      if (!snapshot.empty) {
+        snapshot.forEach((doc) => {
+          fixtures.push(doc.data());
+        });
 
-      fixtures = [...fixtures, ...data.response];
+        return fixtures;
+      }
+
+      if (!Array.isArray(leagueListId)) leagueListId = [leagueListId];
+
+      for (const leagueId of leagueListId) {
+        const { response } = await this.fixtures.getBy({
+          date,
+          league: leagueId,
+          season: '2024',
+          timezone: 'America/Bogota',
+        });
+
+        fixtures = [...fixtures, ...response];
+      }
+
+      for (const fixture of fixtures) {
+        const { fixture: match } = fixture;
+
+        const docRef = collection.doc(String(match.id));
+
+        docRef
+          .set({
+            ...fixture,
+            fixture: {
+              ...match,
+              timestamp: Timestamp.fromDate(new Date(match.date)),
+              date,
+            },
+          })
+          .catch((error) => {
+            console.error('Error saving data:', error);
+          });
+      }
+
+      return fixtures;
+    } catch (error) {
+      console.error(error);
+      return [];
     }
-
-    return fixtures;
   }
 }

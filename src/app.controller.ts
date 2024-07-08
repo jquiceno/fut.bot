@@ -1,12 +1,12 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get } from '@nestjs/common';
 
-@Controller("/")
+@Controller('/')
 export class AppController {
   @Get()
-  getAppInfo(): any {
+  async getAppInfo(): Promise<any> {
     return {
-      appName: "fut.bot",
-      version: "0.0.1",
+      appName: 'fut.bot',
+      version: '0.0.1',
     };
   }
 }
