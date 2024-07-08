@@ -1,8 +1,8 @@
-import * as Joi from "joi";
+import * as Joi from 'joi';
 
 export const validationSchema = Joi.object({
   // Application
-  NODE_ENV: Joi.string().valid("dev", "production", "test"),
+  NODE_ENV: Joi.string().valid('dev', 'production', 'test'),
   PORT: Joi.number().default(6666),
 
   // Telegram
@@ -11,4 +11,9 @@ export const validationSchema = Joi.object({
   // Providers
   API_FOOTBALL_KEY: Joi.string().required(),
   API_FOOTBALL_HOST: Joi.string().required(),
+
+  //Firestore
+  FIRESTORE_PROJECT_ID: Joi.string().required(),
+  FIRESTORE_PRIVATE_KEY: Joi.string().required(),
+  FIRESTORE_CLIENT_EMAIL: Joi.string().required(),
 });
