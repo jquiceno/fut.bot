@@ -7,6 +7,7 @@ export const validationSchema = Joi.object({
 
   // Telegram
   TELEGRAM_BOT_KEY: Joi.string().required(),
+  TELEGRAM_WEBHOOK_URL: Joi.string().required(),
 
   // Providers
   API_FOOTBALL_KEY: Joi.string().required(),

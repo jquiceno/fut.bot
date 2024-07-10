@@ -21,6 +21,7 @@ export class ApiClientService {
   }
 
   async request(url = '', params = {}) {
+    console.log('llamada!', params, url);
     const client = this.getInstance();
 
     const { data } = await client.request({

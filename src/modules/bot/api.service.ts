@@ -139,7 +139,6 @@ export class ApiService {
 
       return fixtures;
     } catch (error) {
-      console.error(error);
       return [];
     }
   }

@@ -1,12 +1,12 @@
 import { UseFilters, UseInterceptors } from '@nestjs/common';
-import { Scenes } from 'telegraf';
-import { Update, Command, Ctx } from 'nestjs-telegraf';
+import * as dayJs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
+import * as timezone from 'dayjs/plugin/timezone';
+import { Context } from 'grammy';
+import { Command, Ctx, Update } from '@grammyjs-nest';
 
 import { ResponseTimeInterceptor } from './response-time.interceptor';
 import { TelegrafExceptionFilter } from './telegraf-exception.filter';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
-import * as dayJs from 'dayjs';
 import { ApiService } from './api.service';
 import { getCountryFlag } from './utils';
 
@@ -21,14 +21,9 @@ dayJs.extend(timezone);
 export class UpdateEvents {
   constructor(private readonly apiService: ApiService) {}
 
-  @Command('adivine')
-  async sendPredictions(@Ctx() ctx: Scenes.SceneContext) {
-    return await ctx.scene.enter('MATCH_PREDICTIONS_SCENE_ID');
-  }
-
   @Command('partidos')
-  async sendTodayMatches(@Ctx() ctx: Scenes.SceneContext) {
-    const { telegram, chat } = ctx;
+  async sendTodayMatches(@Ctx() ctx: Context) {
+    const { api, chat } = ctx;
 
     const leagues = ['4', '9'];
 
@@ -47,12 +42,10 @@ export class UpdateEvents {
       }
 
       if (matchTextList.length) {
-        const message = await telegram.sendMessage(chat.id, matchTextList.join('\n\n'), {
+        await api.sendMessage(chat.id, matchTextList.join('\n\n'), {
           parse_mode: 'MarkdownV2',
           disable_notification: true,
         });
-
-        console.log('message', message);
       }
     }
 

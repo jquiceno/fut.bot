@@ -15,6 +15,7 @@ export const configuration = registerAs('GLOBAL_CONFIG', () => {
 
     // Telegram
     TELEGRAM_BOT_KEY: process.env.TELEGRAM_BOT_KEY,
+    TELEGRAM_WEBHOOK_URL: process.env.TELEGRAM_WEBHOOK_URL,
 
     //Providers
     API_FOOTBALL_KEY: process.env.API_FOOTBALL_KEY,
