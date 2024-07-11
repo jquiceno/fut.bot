@@ -6,9 +6,9 @@ import { Context } from 'grammy';
 import { Command, Ctx, Update } from '@grammyjs-nest';
 
 import { ResponseTimeInterceptor } from './response-time.interceptor';
-import { TelegrafExceptionFilter } from './telegraf-exception.filter';
 import { ApiService } from './api.service';
 import { getCountryFlag } from './utils';
+import { GrammyExceptionFilter } from './filters';
 
 const tz = 'America/Bogota';
 
@@ -17,7 +17,7 @@ dayJs.extend(timezone);
 
 @Update()
 @UseInterceptors(ResponseTimeInterceptor)
-@UseFilters(TelegrafExceptionFilter)
+@UseFilters(GrammyExceptionFilter)
 export class UpdateEvents {
   constructor(private readonly apiService: ApiService) {}
 
@@ -54,7 +54,8 @@ export class UpdateEvents {
 
   getTimeMatch(match: any) {
     const { status } = match;
-    const timeMatch = dayJs(match.date).tz(tz).format('h:mm a');
+
+    const timeMatch = dayJs(match.timestamp.toDate()).tz(tz).format('h:mm a');
 
     return `${status.short} \\- ${timeMatch}`;
   }

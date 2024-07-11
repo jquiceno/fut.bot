@@ -2,6 +2,12 @@ import { Injectable } from '@nestjs/common';
 import * as dayJs from 'dayjs';
 import { Firestore, Timestamp } from 'firebase-admin/firestore';
 import { FixtureService, PredictionsService } from '../api-football';
+import * as utc from 'dayjs/plugin/utc';
+import * as timezone from 'dayjs/plugin/timezone';
+const tz: string = 'America/Bogota';
+
+dayJs.extend(utc);
+dayJs.extend(timezone);
 
 export interface FixtureInterface {
   fixture: {
@@ -88,12 +94,18 @@ export class ApiService {
       const collection = this.firestore.collection('fixtures');
       // const date = dayJs(new Date().setDate(new Date().getDate() - 2)).format('YYYY-MM-DD');
 
-      const date = dayJs().format('YYYY-MM-DD');
+      const date = dayJs().tz(tz);
+
+      const startDate = date.startOf('day');
+      const endDate = date.endOf('day');
+
+      // const date = dayJs().format('YYYY-MM-DD');
 
       let fixtures: any[] = [];
 
       const snapshot = await collection
-        .where('fixture.date', '==', date)
+        .where('fixture.timestamp', '>', startDate.toDate())
+        .where('fixture.timestamp', '<', endDate.toDate())
         .where('league.id', '==', Number(leagueListId))
         .get();
 
@@ -109,10 +121,10 @@ export class ApiService {
 
       for (const leagueId of leagueListId) {
         const { response } = await this.fixtures.getBy({
-          date,
+          from: date.startOf('week').format('YYYY-MM-DD'),
+          to: date.endOf('week').format('YYYY-MM-DD'),
           league: leagueId,
           season: '2024',
-          timezone: 'America/Bogota',
         });
 
         fixtures = [...fixtures, ...response];
@@ -129,7 +141,6 @@ export class ApiService {
             fixture: {
               ...match,
               timestamp: Timestamp.fromDate(new Date(match.date)),
-              date,
             },
           })
           .catch((error) => {
@@ -139,6 +150,8 @@ export class ApiService {
 
       return fixtures;
     } catch (error) {
+      console.error('Error getting matches');
+      console.error(error);
       return [];
     }
   }

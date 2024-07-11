@@ -1,10 +1,11 @@
 import { Module, NestModule, Logger, MiddlewareConsumer, Inject } from '@nestjs/common';
+import { InjectBot, NestjsGrammyModule } from '@grammyjs-nest';
+import { Bot, Context, webhookCallback } from 'grammy';
+
 import { GlobalConfigType, configuration } from '../../confing/';
 import { ApiFootBallModule } from '../api-football';
 import { FirestoreModule } from '../firestore';
 import * as Controllers from './controllers';
-import { InjectBot, NestjsGrammyModule } from '@grammyjs-nest';
-import { Bot, Context, webhookCallback } from 'grammy';
 import { ResponseTime } from './middleware';
 import { WebhookUpdater } from './update';
 import { sessionMiddleware } from './middleware/session.middleware';
@@ -13,6 +14,10 @@ import { ApiService } from './api.service';
 import { MatchPredictionScene } from './wizard';
 
 const log = new Logger('bot:firebase-bot.module');
+
+function setMyCommands(bot: Bot<Context>, commands, languageCode) {
+  return bot.api.setMyCommands(commands, { language_code: languageCode });
+}
 
 @Module({
   imports: [
@@ -64,8 +69,26 @@ export class BotModule implements NestModule {
     this.bot.use(sessionMiddleware);
     this.bot.use(ResponseTime);
 
+    const commandsEs = [
+      {
+        command: 'partidos',
+        description: 'Mostrar partidos de hoy',
+      },
+      {
+        command: 'adivine',
+        description: 'Mostrar predicción de un partido',
+      },
+      {
+        command: 'start',
+        description: 'Iniciar configuración',
+      },
+    ];
+
+    await setMyCommands(this.bot, commandsEs, 'es');
+
     const webhookRoute = '/bot';
-    this.bot.api.setWebhook(`${this.config.TELEGRAM_WEBHOOK_URL}${webhookRoute}`);
+    await this.bot.api.setWebhook(`${this.config.TELEGRAM_WEBHOOK_URL}${webhookRoute}`);
+
     consumer.apply(webhookCallback(this.bot, 'express')).forRoutes(webhookRoute);
   }
 }

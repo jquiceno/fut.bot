@@ -3,4 +3,6 @@ export class FinFixturesQueryInterface {
   league?: string;
   season?: string;
   timezone?: string;
+  from?: string;
+  to?: string;
 }
