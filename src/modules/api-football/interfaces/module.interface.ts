@@ -6,4 +6,5 @@ export class ApiFootBallClientConfig {
 export class ApiFootBallModuleOptionsAsync {
   inject?: any[];
   useFactory: (...args: any[]) => ApiFootBallClientConfig;
+  global?: boolean;
 }

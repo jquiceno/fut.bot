@@ -7,8 +7,10 @@ import { FirestoreModuleOptions, FirestoreModuleOptionsAsync } from './interface
 @Module({})
 export class FirestoreModule {
   static registerAsync(options: FirestoreModuleOptionsAsync): DynamicModule {
+    const { global = false } = options;
     return {
       module: FirestoreModule,
+      global,
       providers: [this.getConfigProvider(options), this.getFirestoreProvider()],
       exports: [this.getFirestoreProvider()],
     };

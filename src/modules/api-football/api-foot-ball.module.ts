@@ -6,8 +6,10 @@ import { ApiFootBallModuleOptionsAsync } from './interfaces';
 @Module({})
 export class ApiFootBallModule {
   static registerAsync(options: ApiFootBallModuleOptionsAsync): DynamicModule {
+    const { global = false } = options;
     return {
       module: ApiFootBallModule,
+      global,
       providers: [...Object.values(Services), this.getConfigProvider(options)],
       exports: [...Object.values(Services)],
     };

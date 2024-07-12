@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ApiClientService } from './api-client.service';
-import { FinFixturesQueryInterface } from '../interfaces/fixture.interface';
+import { FinFixturesQueryInterface } from '../interfaces';
 
 const baseUrl = 'fixtures';
 

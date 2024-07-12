@@ -7,4 +7,5 @@ export class FirestoreModuleOptions {
 export class FirestoreModuleOptionsAsync {
   inject?: any[] = [];
   useFactory: (...args: any[]) => FirestoreModuleOptions;
+  global?: boolean;
 }
