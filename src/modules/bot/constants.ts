@@ -1,5 +1,5 @@
-export const HELLO_SCENE_ID = "HELLO_SCENE_ID";
+export const HELLO_SCENE_ID = 'HELLO_SCENE_ID';
 
-export const WIZARD_SCENE_ID = "WIZARD_SCENE_ID";
+export const WIZARD_SCENE_ID = 'WIZARD_SCENE_ID';
 
-export const BOT_NAME = "DonEdgarBot";
+export const BOT_NAME = 'DonEdgarBot';

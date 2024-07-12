@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ApiClientService } from './api-client.service';
-import { FinFixturesQueryInterface } from '../interfaces';
+import { ApiFixturesResponse, FinFixturesQueryInterface } from '../interfaces';
 
 const baseUrl = 'fixtures';
 
@@ -9,6 +9,6 @@ export class FixtureService {
   constructor(private readonly apiClient: ApiClientService) {}
 
   async getBy(params: FinFixturesQueryInterface) {
-    return this.apiClient.request(baseUrl, params);
+    return this.apiClient.request<ApiFixturesResponse>(baseUrl, params);
   }
 }

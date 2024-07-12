@@ -30,6 +30,10 @@ export class UpdateEvents {
     for (const leagueId of leagues) {
       const matches = await this.apiService.getTodayMatches(leagueId);
 
+      if (!matches.length) {
+        return ctx.reply('🧑🏾‍🦯‍➡️ No hay partidos para hoy');
+      }
+
       const matchTextList = [];
 
       for (const match of matches) {
@@ -49,7 +53,7 @@ export class UpdateEvents {
       }
     }
 
-    return;
+    return null;
   }
 
   getTimeMatch(match: any) {

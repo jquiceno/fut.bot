@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as dayJs from 'dayjs';
-import { Firestore, Timestamp } from 'firebase-admin/firestore';
+import { Firestore } from 'firebase-admin/firestore';
 import { FixtureService, PredictionsService } from '../api-football';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
@@ -8,48 +8,6 @@ const tz: string = 'America/Bogota';
 
 dayJs.extend(utc);
 dayJs.extend(timezone);
-
-export interface FixtureInterface {
-  fixture: {
-    id: string;
-    referee: string;
-    timezone: string;
-    date: string;
-    timestamp: number;
-    periods: {
-      first?: number;
-      second?: null;
-    };
-    venue: {
-      id: number;
-      name: string;
-      city: string;
-    };
-    status: {
-      long: string;
-      short: string;
-      elapsed?: string;
-    };
-  };
-  teams: {
-    home: {
-      id: number;
-      name: string;
-      logo: string;
-      winner?: string;
-    };
-    away: {
-      id: number;
-      name: string;
-      logo: string;
-      winner?: string;
-    };
-  };
-  goals: {
-    home: number;
-    away: number;
-  };
-}
 
 @Injectable()
 export class ApiService {
@@ -101,7 +59,7 @@ export class ApiService {
 
       // const date = dayJs().format('YYYY-MM-DD');
 
-      let fixtures: any[] = [];
+      const fixtures: any[] = [];
 
       const snapshot = await collection
         .where('fixture.timestamp', '>', startDate.toDate())
@@ -117,38 +75,7 @@ export class ApiService {
         return fixtures;
       }
 
-      if (!Array.isArray(leagueListId)) leagueListId = [leagueListId];
-
-      for (const leagueId of leagueListId) {
-        const { response } = await this.fixtures.getBy({
-          from: date.startOf('week').format('YYYY-MM-DD'),
-          to: date.endOf('week').format('YYYY-MM-DD'),
-          league: leagueId,
-          season: '2024',
-        });
-
-        fixtures = [...fixtures, ...response];
-      }
-
-      for (const fixture of fixtures) {
-        const { fixture: match } = fixture;
-
-        const docRef = collection.doc(String(match.id));
-
-        docRef
-          .set({
-            ...fixture,
-            fixture: {
-              ...match,
-              timestamp: Timestamp.fromDate(new Date(match.date)),
-            },
-          })
-          .catch((error) => {
-            console.error('Error saving data:', error);
-          });
-      }
-
-      return fixtures;
+      return [];
     } catch (error) {
       console.error('Error getting matches');
       console.error(error);

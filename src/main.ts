@@ -1,6 +1,6 @@
-import { NestFactory } from "@nestjs/core";
-import { AppModule, LogService } from "./app.module";
-import { configuration, GlobalConfigType } from "./confing";
+import { NestFactory } from '@nestjs/core';
+import { AppModule, LogService } from './app.module';
+import { configuration, GlobalConfigType } from './confing';
 
 let logger: LogService;
 async function bootstrap() {
