@@ -25,12 +25,16 @@ export class WebhookUpdater {
   async onStart(@Ctx() ctx: Context & { session: any }) {
     logger.log('onStart!!', this.bot ? this.bot.botInfo.first_name : '(booting)');
 
-    await ctx.api.setChatMenuButton({
-      chat_id: ctx.chatId,
-      menu_button: {
-        type: 'commands',
-      },
-    });
+    const { type } = ctx.chat;
+
+    if (!['group', 'supergroup'].includes(type)) {
+      await ctx.api.setChatMenuButton({
+        chat_id: ctx.chatId,
+        menu_button: {
+          type: 'commands',
+        },
+      });
+    }
 
     return ctx.reply('Curious? Click me!', {
       reply_markup: this.inlineKeyboard,
