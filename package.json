@@ -21,6 +21,7 @@
     "sync:matches": "node src/run sync matches"
   },
   "dependencies": {
+    "@grammyjs/types": "^3.11.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.2",
     "@nestjs/core": "^10.0.0",

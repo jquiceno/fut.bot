@@ -1,19 +1,13 @@
 import { UseFilters, UseInterceptors } from '@nestjs/common';
-import * as dayJs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
 import { Context } from 'grammy';
 import { Command, Ctx, Update } from '@grammyjs-nest';
 
 import { ResponseTimeInterceptor } from './response-time.interceptor';
 import { ApiService } from './api.service';
-import { getCountryFlag } from './utils';
+import { getCountryFlag, getTzDate } from './utils';
 import { GrammyExceptionFilter } from './filters';
 
 const tz = 'America/Bogota';
-
-dayJs.extend(utc);
-dayJs.extend(timezone);
 
 @Update()
 @UseInterceptors(ResponseTimeInterceptor)
@@ -42,7 +36,7 @@ export class UpdateEvents {
         const homeTitle = `${getCountryFlag(teams.home.name)} ${teams.home.name} ${this.getResultText(goals.home)}`;
         const awayTitle = `${teams.away.name} ${this.getResultText(goals.away)} ${getCountryFlag(teams.away.name)}`;
 
-        matchTextList.push(`${homeTitle} VS ${awayTitle} \n${this.getTimeMatch(fixture)}`);
+        matchTextList.push(`${homeTitle} VS ${awayTitle} ${this.getTimeMatch(fixture, tz)}`);
       }
 
       if (matchTextList.length) {
@@ -56,12 +50,10 @@ export class UpdateEvents {
     return null;
   }
 
-  getTimeMatch(match: any) {
-    const { status } = match;
+  getTimeMatch(match: any, tz: string) {
+    const timeMatch = getTzDate(match.timestamp.toDate(), tz).format('h:mm a');
 
-    const timeMatch = dayJs(match.timestamp.toDate()).tz(tz).format('h:mm a');
-
-    return `${status.short} \\- ${timeMatch}`;
+    return `\\- ${timeMatch}`;
   }
 
   getResultText(goals) {
