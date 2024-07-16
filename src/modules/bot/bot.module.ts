@@ -49,6 +49,10 @@ export class BotModule implements NestModule {
         command: 'start',
         description: 'Iniciar configuración',
       },
+      {
+        command: `settimezone {country name}`,
+        description: 'Configurar zona horaria por país',
+      },
     ];
 
     await setMyCommands(this.bot, commandsEs, 'es');
