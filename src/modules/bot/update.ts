@@ -71,11 +71,11 @@ export class WebhookUpdater {
     return ctx.reply(reversedText);
   }
 
-  @Command(['set_timezone'])
+  @Command(['settimezone'])
   async onLocation(@Ctx() ctx: Context) {
     if (!ctx.match || typeof ctx.match != 'string') {
       return ctx.reply(
-        'Para configurar tu zona horaria envia el comando /set_timezone seguido del nombre de tu país:\n<pre>/set_timezone Colombia</pre>',
+        'Para configurar tu zona horaria envia el comando /settimezone seguido del nombre de tu país:\n<pre>/settimezone Colombia</pre>',
         {
           parse_mode: 'HTML',
         },

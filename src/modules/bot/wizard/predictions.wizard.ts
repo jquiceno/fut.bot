@@ -15,7 +15,7 @@ export class MatchPredictionScene {
 
   @Command('adivine')
   async onCallPredictions(@Ctx() ctx: Context & { session: any }): Promise<string> {
-    const leagues = ['4', '9'];
+    const leagues = ['239', '2'];
     const matchesButtons = new InlineKeyboard();
 
     for (const leagueId of leagues) {

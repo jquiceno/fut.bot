@@ -1,42 +1,52 @@
 import { UseFilters, UseInterceptors } from '@nestjs/common';
 import { Context } from 'grammy';
 import { Command, Ctx, Update } from '@grammyjs-nest';
+import { Firestore } from 'firebase-admin/firestore';
 
 import { ResponseTimeInterceptor } from './response-time.interceptor';
 import { ApiService } from './api.service';
 import { getCountryFlag, getTzDate } from './utils';
 import { GrammyExceptionFilter } from './filters';
 
-const tz = 'America/Bogota';
-
 @Update()
 @UseInterceptors(ResponseTimeInterceptor)
 @UseFilters(GrammyExceptionFilter)
 export class UpdateEvents {
-  constructor(private readonly apiService: ApiService) {}
+  private readonly chats: FirebaseFirestore.CollectionReference;
+
+  constructor(
+    private readonly apiService: ApiService,
+    private readonly firestore: Firestore,
+  ) {
+    this.chats = firestore.collection('chats');
+  }
 
   @Command('partidos')
   async sendTodayMatches(@Ctx() ctx: Context) {
     const { api, chat } = ctx;
 
-    const leagues = ['4', '9'];
+    const docRef = await this.chats.doc(String(chat.id)).get();
+
+    const chatData = docRef.data();
+
+    const leagues = ['239', '2'];
+
+    let totalMatches = 0;
 
     for (const leagueId of leagues) {
-      const matches = await this.apiService.getTodayMatches(leagueId);
+      const matches = await this.apiService.getTodayMatches(leagueId, chatData.timeZone);
 
-      if (!matches.length) {
-        return ctx.reply('🧑🏾‍🦯‍➡️ No hay partidos para hoy');
-      }
+      totalMatches += matches.length;
 
       const matchTextList = [];
 
       for (const match of matches) {
         const { teams, fixture, goals } = match;
 
-        const homeTitle = `${getCountryFlag(teams.home.name)} ${teams.home.name} ${this.getResultText(goals.home)}`;
-        const awayTitle = `${teams.away.name} ${this.getResultText(goals.away)} ${getCountryFlag(teams.away.name)}`;
+        const homeTitle = `${this.getResultText(goals.home)} ${getCountryFlag(teams.home.name)} ${teams.home.name}`;
+        const awayTitle = `${this.getResultText(goals.away)} ${getCountryFlag(teams.away.name)} ${teams.away.name}`;
 
-        matchTextList.push(`${homeTitle} VS ${awayTitle} ${this.getTimeMatch(fixture, tz)}`);
+        matchTextList.push(`${this.getTimeMatch(fixture, chatData.timeZone)}\n${homeTitle}\n${awayTitle}`);
       }
 
       if (matchTextList.length) {
@@ -47,17 +57,21 @@ export class UpdateEvents {
       }
     }
 
+    if (!totalMatches) {
+      return ctx.reply('🧑🏾‍🦯‍➡️ No hay partidos para hoy');
+    }
+
     return null;
   }
 
   getTimeMatch(match: any, tz: string) {
-    const timeMatch = getTzDate(match.timestamp.toDate(), tz).format('h:mm a');
+    const timeMatch = getTzDate(tz, match.timestamp.toDate()).format('h:mm a');
 
-    return `\\- ${timeMatch}`;
+    return `${timeMatch}`;
   }
 
   getResultText(goals) {
-    if (!goals) return '';
+    if (!goals && goals !== 0) return '';
 
     return `\\(*${goals}*\\)`;
   }

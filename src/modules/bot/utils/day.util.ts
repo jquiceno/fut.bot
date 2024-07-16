@@ -5,7 +5,6 @@ import * as timezone from 'dayjs/plugin/timezone';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export function getTzDate(date?: dayjs.ConfigType, tz?: string) {
-  tz = tz || 'America/Bogota';
+export function getTzDate(tz = 'America/Bogota', date?: dayjs.ConfigType) {
   return dayjs(date).tz(tz);
 }

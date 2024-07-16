@@ -41,11 +41,11 @@ export class ApiService {
     return predictions;
   }
 
-  async getTodayMatches(leagueListId: string | string[]) {
+  async getTodayMatches(leagueListId: string | string[], timeZone?: string) {
     try {
       const collection = this.firestore.collection('fixtures');
 
-      const currentDate = getTzDate();
+      const currentDate = getTzDate(timeZone);
 
       const startDate = currentDate.startOf('day').toDate();
       const endDate = currentDate.endOf('day').toDate();
@@ -53,7 +53,7 @@ export class ApiService {
       const fixtures: any[] = [];
 
       const snapshot = await collection
-        .where('fixture.timestamp', '>', startDate)
+        .where('fixture.timestamp', '>=', startDate)
         .where('fixture.timestamp', '<', endDate)
         .where('league.id', '==', Number(leagueListId))
         .get();
