@@ -12,7 +12,7 @@ export class ApiFootBallModule {
       module: ApiFootBallModule,
       global,
       providers: [...Object.values(Services), this.getConfigProvider(options), this.getInstanceProvider()],
-      exports: [...Object.values(Services)],
+      exports: [...Object.values(Services), API_CONFIG_PROVIDER_KEY],
     };
   }
 

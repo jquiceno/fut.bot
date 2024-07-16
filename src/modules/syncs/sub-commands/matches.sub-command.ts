@@ -1,7 +1,4 @@
 import { CommandRunner, SubCommand } from 'nest-commander';
-import * as dayJs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
 
 import { SyncMatchesService } from '../services';
 

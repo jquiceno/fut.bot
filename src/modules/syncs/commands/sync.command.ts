@@ -1,10 +1,10 @@
 import { Command, CommandRunner } from 'nest-commander';
-import { SyncMatchesSubCommand } from '../sub-commands';
+import { SyncLeaguesSubCommand, SyncMatchesSubCommand } from '../sub-commands';
 import { Injectable } from '@nestjs/common';
 
 @Command({
   name: 'sync',
-  subCommands: [SyncMatchesSubCommand],
+  subCommands: [SyncMatchesSubCommand, SyncLeaguesSubCommand],
 })
 @Injectable()
 export class SyncCommand extends CommandRunner {
