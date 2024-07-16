@@ -11,7 +11,6 @@ import { UpdateEvents } from './update-events.listener';
 import { ApiService } from './api.service';
 import { MatchPredictionScene } from './wizard';
 import { BOT_NAME } from './constants';
-import { LoggerMiddleware } from './middleware/test.md';
 
 const log = new Logger('bot:firebase-bot.module');
 
@@ -34,7 +33,6 @@ export class BotModule implements NestModule {
   }
 
   async configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('/bot');
     this.bot.use(sessionMiddleware);
     this.bot.use(ResponseTime);
 
