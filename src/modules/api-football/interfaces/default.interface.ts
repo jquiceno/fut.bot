@@ -29,7 +29,7 @@ export class Fixture {
   };
 }
 
-export class League {
+export class FixtureLeague {
   id: number;
   name: string;
   country: string;
@@ -96,7 +96,7 @@ export class Comparison {
 
 export class H2h {
   fixture: Fixture;
-  league: League;
+  league: FixtureLeague;
   teams: {
     home: Team;
     away: Team;

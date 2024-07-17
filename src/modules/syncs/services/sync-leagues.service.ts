@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { Firestore } from 'firebase-admin/firestore';
 
-import { ApiClientService } from '../../api-football';
+import { LeagueService } from '../../api-football';
 
 @Injectable()
 export class SyncLeaguesService {
   constructor(
-    private readonly apiClient: ApiClientService,
+    private readonly league: LeagueService,
     private readonly firestore: Firestore,
   ) {}
   async run() {
     const collection = this.firestore.collection('leagues');
 
-    const { response: leagues } = await this.apiClient.request<any>('leagues');
+    const { response: leagues } = await this.league.getAll();
 
     for (const league of leagues) {
       const docRef = collection.doc(String(league.league.id));

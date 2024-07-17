@@ -1,4 +1,5 @@
-import { Comparison, Fixture, Goals, H2h, League, Prediction, Score, Team } from './default.interface';
+import { Comparison, Fixture, Goals, H2h, FixtureLeague, Prediction, Score, Team } from './default.interface';
+import { Country, Season, League } from './league.interface';
 
 export class ApiResponse {
   get: string;
@@ -14,7 +15,7 @@ export class ApiResponse {
 
 export class FixtureResponse {
   fixture: Fixture;
-  league: League;
+  league: FixtureLeague;
   teams: {
     home: Team;
     away: Team;
@@ -28,7 +29,7 @@ export class ApiFixturesResponse extends ApiResponse {
 }
 
 export class PredictionResponse {
-  league: League;
+  league: FixtureLeague;
   teams: {
     home: Team;
     away: Team;
@@ -40,4 +41,14 @@ export class PredictionResponse {
 
 export class ApiPredictionResponse extends ApiResponse {
   response: PredictionResponse[];
+}
+
+export class LeagueResponse {
+  league: League;
+  country: Country;
+  seasons: Season[];
+}
+
+export class ApiLeagueResponse extends ApiResponse {
+  response: LeagueResponse[];
 }
