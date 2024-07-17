@@ -20,7 +20,8 @@
     "resolveJsonModule": true,
     "typeRoots": ["node_modules/@types", "types"],
     "paths": {
-      "@grammyjs-nest": ["src/modules/grammyjs"]
+      "@grammyjs-nest": ["src/modules/grammyjs"],
+      "@api-football": ["src/modules/api-football"],
     }
   }
 }

@@ -1,12 +1,13 @@
 import { ConsoleLogger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+
 import { NestjsGrammyModule } from '@grammyjs-nest';
+import { ApiFootBallModule } from '@api-football';
 
 import { BotModule, BOT_NAME } from './modules/bot';
 import { validationSchema, configuration, GlobalConfigType } from './confing';
 import { AppController } from './app.controller';
 import { FirestoreModule } from './modules/firestore';
-import { ApiFootBallModule } from './modules/api-football';
 import { SyncModule } from './modules/syncs';
 
 export class LogService extends ConsoleLogger {}
