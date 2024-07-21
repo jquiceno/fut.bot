@@ -26,18 +26,21 @@ export class UpdateEvents {
   @Command('partidos')
   async sendTodayMatches(@Ctx() ctx: Context) {
     try {
-      const { api, chat } = ctx;
+      const { chat } = ctx;
 
       const docRef = await this.chats.doc(String(chat.id)).get();
 
       const chatData = docRef.data();
 
-      const leagues = ['239', '2'];
+      const leagues = ['4', '9', '239', '2', '11', '13'];
 
       let totalMatches = 0;
 
       for (const leagueId of leagues) {
         const matches = await this.apiService.getTodayMatches(leagueId, chatData.timeZone);
+
+        if (!matches.length) continue;
+
         const leagueRef = await this.leagues.doc(leagueId).get();
         const { league, country } = leagueRef.data();
 
@@ -58,10 +61,14 @@ export class UpdateEvents {
         }
 
         if (matchTextList.length) {
-          await api.sendMessage(chat.id, matchTextList.join('\n'), {
-            parse_mode: 'MarkdownV2',
-            disable_notification: true,
-          });
+          ctx
+            .reply(matchTextList.join('\n'), {
+              parse_mode: 'MarkdownV2',
+              disable_notification: true,
+            })
+            .catch((error) => {
+              console.error(error);
+            });
         }
       }
 

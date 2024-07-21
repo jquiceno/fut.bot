@@ -1,15 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Firestore, Timestamp } from 'firebase-admin/firestore';
 import * as dayJs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
 
-import { FixtureResponse, FixtureService } from '../../api-football';
-
-dayJs.extend(utc);
-dayJs.extend(timezone);
-
-const tz: string = 'America/Bogota';
+import { FixtureResponse, FixtureService } from '@api-football';
 
 @Injectable()
 export class SyncMatchesService {
@@ -18,10 +11,10 @@ export class SyncMatchesService {
     private readonly firestore: Firestore,
   ) {}
   async run() {
-    const leagueListId = ['4', '9', '239', '2'];
+    const leagueListId = ['4', '9', '239', '2', '11', '13'];
 
     const collection = this.firestore.collection('fixtures');
-    const date = dayJs().tz(tz);
+    const date = dayJs();
 
     let fixtures: FixtureResponse[] = [];
 
