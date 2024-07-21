@@ -1,9 +1,10 @@
 import { Context, InlineKeyboard } from 'grammy';
 import { CallbackQuery, Command, Ctx, Update } from '@grammyjs-nest';
+import { Firestore } from 'firebase-admin/firestore';
+import { UseFilters, UseInterceptors } from '@nestjs/common';
 
 import { ApiService } from '../api.service';
 import { getCountryFlag } from '../utils';
-import { UseFilters, UseInterceptors } from '@nestjs/common';
 import { ResponseTimeInterceptor } from '../interceptors';
 import { GrammyExceptionFilter } from '../filters';
 
@@ -11,15 +12,32 @@ import { GrammyExceptionFilter } from '../filters';
 @UseInterceptors(ResponseTimeInterceptor)
 @UseFilters(GrammyExceptionFilter)
 export class MatchPredictionScene {
-  constructor(private readonly apiService: ApiService) {}
+  private readonly chats: FirebaseFirestore.CollectionReference;
+
+  constructor(
+    private readonly apiService: ApiService,
+    private readonly firestore: Firestore,
+  ) {
+    this.chats = firestore.collection('chats');
+  }
 
   @Command('adivine')
   async onCallPredictions(@Ctx() ctx: Context & { session: any }): Promise<string> {
+    const { chatId } = ctx;
     const leagues = ['239', '2'];
     const matchesButtons = new InlineKeyboard();
 
+    let timeZone: string;
+
+    const docRef = await this.chats.doc(String(chatId)).get();
+
+    if (docRef.exists) {
+      const chatData = docRef.data();
+      timeZone = chatData.timeZone;
+    }
+
     for (const leagueId of leagues) {
-      const matches = await this.apiService.getTodayMatches(leagueId);
+      const matches = await this.apiService.getTodayMatches(leagueId, timeZone);
 
       for (const match of matches) {
         const { teams, fixture } = match;
@@ -30,9 +48,13 @@ export class MatchPredictionScene {
       }
     }
 
-    await ctx.reply('Selecciona el partido: ⚽️', {
-      reply_markup: matchesButtons,
-    });
+    ctx
+      .reply('Selecciona el partido: ⚽️', {
+        reply_markup: matchesButtons,
+      })
+      .catch((error) => {
+        console.error(error);
+      });
 
     ctx.session['matchesSelected'] = {};
     ctx.session['buttons'] = matchesButtons.inline_keyboard;

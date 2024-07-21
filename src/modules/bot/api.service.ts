@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Firestore } from 'firebase-admin/firestore';
-import { PredictionsService } from '../api-football';
+import { PredictionsService } from '@api-football';
 
 import { getTzDate } from './utils';
 
