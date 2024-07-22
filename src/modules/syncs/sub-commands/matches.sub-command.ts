@@ -9,6 +9,7 @@ export class SyncMatchesSubCommand extends CommandRunner {
   }
 
   async run(): Promise<void> {
-    return this.syncMatches.run();
+    const leagueListId = [4, 9, 239, 2, 11, 13];
+    return this.syncMatches.run(leagueListId);
   }
 }
