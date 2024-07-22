@@ -10,20 +10,23 @@ export class SyncMatchesService {
     private readonly fixtures: FixtureService,
     private readonly firestore: Firestore,
   ) {}
-  async run() {
-    const leagueListId = ['4', '9', '239', '2', '11', '13'];
+  async run(leagueListId: number[], fromDate?: Date, toDate?: Date) {
+    // const leagueListId = ['4', '9', '239', '2', '11', '13'];
 
     const collection = this.firestore.collection('fixtures');
-    const date = dayJs();
+    const currentDate = dayJs();
 
     let fixtures: FixtureResponse[] = [];
 
+    const from = fromDate ? dayJs(fromDate) : currentDate.startOf('day').subtract(1, 'day');
+    const to = toDate ? dayJs(toDate) : currentDate.endOf('day').add(7, 'day');
+
     for (const leagueId of leagueListId) {
       const { response } = await this.fixtures.getBy({
-        from: date.subtract(2, 'days').startOf('day').format('YYYY-MM-DD'),
-        to: date.add(7, 'day').format('YYYY-MM-DD'),
-        league: leagueId,
-        season: date.format('YYYY'),
+        from: from.format('YYYY-MM-DD'),
+        to: to.format('YYYY-MM-DD'),
+        league: String(leagueId),
+        season: currentDate.format('YYYY'),
       });
 
       fixtures = [...fixtures, ...response];
