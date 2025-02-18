@@ -24,7 +24,7 @@ export class MatchPredictionScene {
   @Command('adivine')
   async onCallPredictions(@Ctx() ctx: Context & { session: any }): Promise<string> {
     const { chatId } = ctx;
-    const leagues = ['239', '2'];
+    const leagues = ['4', '9', '239', '2', '11', '13', '3', '71', '39'];
     const matchesButtons = new InlineKeyboard();
 
     let timeZone: string;

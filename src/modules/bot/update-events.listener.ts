@@ -32,7 +32,7 @@ export class UpdateEvents {
 
       const chatData = docRef.data();
 
-      const leagues = ['4', '9', '239', '2', '11', '13'];
+      const leagues = ['4', '9', '239', '2', '11', '13', '3', '71', '39'];
 
       let totalMatches = 0;
 

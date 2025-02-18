@@ -7,7 +7,7 @@ export class LeagueService {
   private readonly baseUrl: string;
 
   constructor(private readonly apiClient: ApiClientService) {
-    this.baseUrl = '';
+    this.baseUrl = 'leagues';
   }
 
   async getAll() {
