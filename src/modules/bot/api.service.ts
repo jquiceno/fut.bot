@@ -43,7 +43,7 @@ export class ApiService {
 
   async getTodayMatches(leagueListId: string | string[], timeZone?: string) {
     try {
-      const collection = this.firestore.collection('fixtures');
+      const collection = this.firestore.collection('matches');
 
       const currentDate = getTzDate(timeZone);
 

@@ -13,7 +13,7 @@ export class SyncMatchesService {
   async run(leagueListId: number[], fromDate?: Date, toDate?: Date) {
     // const leagueListId = ['4', '9', '239', '2', '11', '13'];
 
-    const collection = this.firestore.collection('fixtures');
+    const collection = this.firestore.collection('matches');
     const leaguesCollection = this.firestore.collection('leagues');
     const currentDate = dayJs();
 
@@ -40,17 +40,17 @@ export class SyncMatchesService {
     for (const fixture of fixtures) {
       const { fixture: match } = fixture;
 
+      delete fixture.fixture;
+
       const docRef = collection.doc(String(match.id));
 
       await docRef.set({
         ...fixture,
-        fixture: {
-          ...match,
-          timestamp: Timestamp.fromDate(new Date(match.date)),
-        },
+        ...match,
+        timestamp: Timestamp.fromDate(new Date(match.date)),
       });
     }
 
-    console.log('fixtures', fixtures.length);
+    console.log('matches', fixtures.length);
   }
 }
