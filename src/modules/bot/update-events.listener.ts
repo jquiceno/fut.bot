@@ -42,22 +42,23 @@ export class UpdateEvents {
         if (!matches.length) continue;
 
         const leagueRef = await this.leagues.doc(leagueId).get();
-        const { league, country } = leagueRef.data();
+
+        const { name, country } = leagueRef.data();
 
         totalMatches += matches.length;
 
         const countryFlag = `${country.name !== 'World' ? getCountryFlag(country.name) : '🏆'} `;
-        const leagueTitle = `${countryFlag}__*${country.name !== 'World' ? country.name : ''} ${league.name}*__\n`;
+        const leagueTitle = `${countryFlag}__*${country.name !== 'World' ? country.name : ''} ${name}*__\n`;
 
         const matchTextList = [leagueTitle];
 
         for (const match of matches) {
-          const { teams, fixture, goals } = match;
+          const { teams, timestamp, goals } = match;
 
           const homeTitle = `${teams.home.winner ? '*' : ''}${this.getResultText(goals.home)} ${getCountryFlag(teams.home.name)} ${teams.home.name}${teams.home.winner ? '*' : ''}`;
           const awayTitle = `${teams.away.winner ? '*' : ''}${this.getResultText(goals.away)} ${getCountryFlag(teams.away.name)} ${teams.away.name}${teams.away.winner ? '*' : ''}`;
 
-          matchTextList.push(`${this.getTimeMatch(fixture, chatData.timeZone)}\n>${homeTitle}\n>${awayTitle}`);
+          matchTextList.push(`${this.getTimeMatch(timestamp, chatData.timeZone)}\n>${homeTitle}\n>${awayTitle}`);
         }
 
         if (matchTextList.length) {
@@ -75,16 +76,15 @@ export class UpdateEvents {
       if (!totalMatches) {
         return ctx.reply('🧑🏾‍🦯‍➡️ No hay partidos para hoy');
       }
-
-      return null;
     } catch (error) {
-      console.log('error', error);
-      return null;
+      console.error('error', error);
     }
+
+    return [];
   }
 
-  getTimeMatch(match: any, tz: string) {
-    const timeMatch = getTzDate(tz, match.timestamp.toDate()).format('h:mm a');
+  getTimeMatch(timestamp: any, tz: string) {
+    const timeMatch = getTzDate(tz, timestamp.toDate()).format('h:mm a');
 
     return `${timeMatch}`;
   }

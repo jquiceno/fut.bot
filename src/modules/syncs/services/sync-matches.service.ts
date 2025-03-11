@@ -48,6 +48,8 @@ export class SyncMatchesService {
         ...fixture,
         ...match,
         timestamp: Timestamp.fromDate(new Date(match.date)),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
     }
 

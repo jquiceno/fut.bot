@@ -53,8 +53,8 @@ export class ApiService {
       const fixtures: any[] = [];
 
       const snapshot = await collection
-        .where('fixture.timestamp', '>=', startDate)
-        .where('fixture.timestamp', '<', endDate)
+        .where('timestamp', '>=', startDate)
+        .where('timestamp', '<', endDate)
         .where('league.id', '==', Number(leagueListId))
         .get();
 
